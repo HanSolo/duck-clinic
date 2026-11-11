@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>27</maven.compiler.release>
+        <maven.compiler.release>25</maven.compiler.release>
     </properties>
 
     <dependencies>
@@ -21,6 +21,13 @@
             <artifactId>jakarta.jakartaee-web-api</artifactId>
             <version>11.0.0</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- MCP server library; install it first with `mvn install -DskipTests` in jakarta-mcp-server -->
+        <dependency>
+            <groupId>eu.hansolo.mcp</groupId>
+            <artifactId>mcp-jakarta</artifactId>
+            <version>0.9.0</version>
         </dependency>
 
         <!-- DuckDB JDBC driver – packaged into the WAR, provides java.sql.Driver -->
@@ -40,6 +47,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
+                <configuration>
+                    <!-- the MCP library reads tool argument names from the compiled classes -->
+                    <parameters>true</parameters>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -106,11 +117,9 @@
                 <artifactId>embedded-glassfish-maven-plugin</artifactId>
                 <version>8.0</version>
                 <configuration>
-                     <glassfish.version>8.0.1</glassfish.version>
+                    <glassfish.version>8.0.1</glassfish.version>
                 </configuration>
             </plugin>
         </plugins>
     </build>
 </project>
-
-
