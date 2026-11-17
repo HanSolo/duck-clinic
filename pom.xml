@@ -23,7 +23,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- MCP server library; install it first with `mvn install -DskipTests` in jakarta-mcp-server -->
         <dependency>
             <groupId>eu.hansolo.mcp</groupId>
             <artifactId>mcp-jakarta</artifactId>

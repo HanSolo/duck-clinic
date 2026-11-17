@@ -55,26 +55,19 @@ public class ClinicTools {
     }
 
 
-    public record DuckView(long id, String name, String type, String birthDate) {
-    }
+    public record DuckView(long id, String name, String type, String birthDate) { }
 
-    public record OwnerView(long id, String name, String city, String telephone, List<DuckView> ducks) {
-    }
+    public record OwnerView(long id, String name, String city, String telephone, List<DuckView> ducks) { }
 
-    public record OwnerList(List<OwnerView> owners, boolean truncated) {
-    }
+    public record OwnerList(List<OwnerView> owners, boolean truncated) { }
 
-    public record VetView(long id, String name, List<String> specialties) {
-    }
+    public record VetView(long id, String name, List<String> specialties) { }
 
-    public record VetList(List<VetView> vets) {
-    }
+    public record VetList(List<VetView> vets) { }
 
-    public record VisitView(long id, String date, String description) {
-    }
+    public record VisitView(long id, String date, String description) { }
 
-    public record VisitList(long duckId, String duckName, List<VisitView> visits) {
-    }
+    public record VisitList(long duckId, String duckName, List<VisitView> visits) { }
 
 
     @McpTool(description = "Finds duck owners with their ducks (ids included). Filter by part of the last name; without a filter the first owners are returned.", readOnlyHint = McpTool.Hint.TRUE)
