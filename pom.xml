@@ -95,7 +95,7 @@
                     <dependency>
                         <groupId>fish.payara.extras</groupId>
                         <artifactId>payara-micro</artifactId>
-                        <version>7.2026.9</version>
+                        <version>7.2026.10</version>
                     </dependency>
                 </dependencies>
                 <executions>
@@ -106,17 +106,26 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <payaraVersion>7.2026.9</payaraVersion>
+                    <payaraVersion>7.2026.10</payaraVersion>
                     <deployWar>true</deployWar>
-                    <contextRoot>duck-clinic</contextRoot>
+                    <contextRoot>agentic-duke</contextRoot>
                 </configuration>
             </plugin>
+
             <plugin>
-                <groupId>org.glassfish.embedded</groupId>
-                <artifactId>embedded-glassfish-maven-plugin</artifactId>
-                <version>8.0</version>
+                <groupId>fish.payara.maven.plugins</groupId>
+                <artifactId>payara-server-maven-plugin</artifactId>
+                <version>1.0.0-Alpha3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
-                    <glassfish.version>8.0.1</glassfish.version>
+                    <payaraServerVersion>7.2026.10</payaraServerVersion>
+                    <contextRoot>agentic-duke</contextRoot>
                 </configuration>
             </plugin>
         </plugins>
