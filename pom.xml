@@ -108,7 +108,7 @@
                 <configuration>
                     <payaraVersion>7.2026.10</payaraVersion>
                     <deployWar>true</deployWar>
-                    <contextRoot>agentic-duke</contextRoot>
+                    <contextRoot>duck-clinic</contextRoot>
                 </configuration>
             </plugin>
 
@@ -125,7 +125,7 @@
                 </executions>
                 <configuration>
                     <payaraServerVersion>7.2026.10</payaraServerVersion>
-                    <contextRoot>agentic-duke</contextRoot>
+                    <contextRoot>duck-clinic</contextRoot>
                 </configuration>
             </plugin>
         </plugins>
