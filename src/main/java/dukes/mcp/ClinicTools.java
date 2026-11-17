@@ -42,8 +42,7 @@ public class ClinicTools {
 
 
     /** For the CDI proxy. */
-    ClinicTools() {
-    }
+    ClinicTools() { }
 
     @Inject
     public ClinicTools(OwnerService ownerService, DuckService duckService, VetService vetService, VisitService visitService, McpRequestStates states) {
