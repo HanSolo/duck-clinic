@@ -19,7 +19,7 @@
             </h:column>
         </h:dataTable>
 
-        <p class="empty-msg" rendered="#{empty vetBean.vets}">No vets found.</p>
+        <h:panelGroup layout="block" styleClass="empty-msg" rendered="#{empty vetBean.vets}">No vets found.</h:panelGroup>
     </ui:define>
 </ui:composition>
 </html>

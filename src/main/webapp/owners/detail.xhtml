@@ -14,7 +14,7 @@
 
     <ui:define name="content">
 
-        <h:link outcome="/owners/list" styleClass="back-link">← Back to Owners</h:link>
+        <h:link outcome="/owners/list" styleClass="back-link" value="← Back to Owners"/>
 
         <h2>Owner Details</h2>
 
@@ -35,20 +35,18 @@
             <h:column><f:facet name="header">Birth Date</f:facet>#{d.birthDate}</h:column>
             <h:column>
                 <f:facet name="header">Visits</f:facet>
-                <h:link outcome="/visits/list">
+                <h:link outcome="/visits/list" value="View Visits (#{d.visits.size()})">
                     <f:param name="duckId" value="#{d.id}"/>
-                    View Visits (#{d.visits.size()})
                 </h:link>
             </h:column>
         </h:dataTable>
 
-        <p class="empty-msg" rendered="#{empty ownerBean.owner.ducks}">No ducks registered for this owner.</p>
+        <h:panelGroup layout="block" styleClass="empty-msg" rendered="#{empty ownerBean.owner.ducks}">No ducks registered for this owner.</h:panelGroup>
 
         <div class="form-actions">
-            <h:link outcome="/ducks/list" styleClass="btn btn-primary">
-                <f:param name="ownerId" value="#{ownerBean.owner.id}"/>
-                Add / Edit Ducks
-            </h:link>
+            <h:link outcome="/ducks/list" styleClass="btn btn-primary" value="Add / Edit Ducks">
+                    <f:param name="ownerId" value="#{ownerBean.owner.id}"/>
+                </h:link>
         </div>
     </ui:define>
 </ui:composition>

@@ -10,10 +10,9 @@ import jakarta.ws.rs.core.Application;
 
 import java.util.Set;
 
-@ApplicationPath("")
+@ApplicationPath("/api")
 public class DuckClinicApplication extends Application {
 
-    /** Returning a non-empty set switches classpath scanning off, so the existing REST resources are listed as well as the MCP endpoint in the library JAR. */
     @Override
     public Set<Class<?>> getClasses() {
         return Set.of(OwnerResource.class, DuckResource.class, VisitResource.class, VetResource.class, McpResource.class);

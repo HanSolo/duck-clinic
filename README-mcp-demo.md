@@ -61,10 +61,10 @@ The compiler plugin must keep parameter names, because the library reads tool ar
 
 ### 2. `src/main/java/dukes/DuckClinicApplication.java`
 
-The MCP endpoint lives in the library JAR, so it has to be registered. Returning a non-empty set from `getClasses()` switches classpath scanning off, so the existing REST resources are listed as well:
+The MCP endpoint lives in the library JAR, so it has to be registered. Returning a non-empty set from `getClasses()` switches classpath scanning off, so the existing REST resources are listed as well. The application path is `/api`, not the root, because a root-mapped JAX-RS application takes the `*.xhtml` requests away from the Faces servlet and the pages return 404 (see Known issues). The REST resources and the MCP endpoint therefore live under `/duck-clinic/api/`:
 
 ```java
-@ApplicationPath("")
+@ApplicationPath("/api")
 public class DuckClinicApplication extends Application {
 
     @Override
@@ -82,26 +82,28 @@ An `@ApplicationScoped` CDI bean with the four `@McpTool` methods. It receives t
 
 ### Requirements
 
-- JDK 25 and Maven (the pom sets `maven.compiler.release` to 25).
+- JDK 21 or newer and Maven (the pom sets `maven.compiler.release` to 21).
 - Node.js 20 or newer for the MCP Inspector.
 - Optional: the Claude Code CLI as a real client.
 
 ### Start the application
 
 ```
-mvn clean package payara-micro:start
+mvn clean package payara-server:start
 ```
+
+This runs Payara Server 7.2026.10 (the pom uses `payara-server-maven-plugin`; the older `payara-micro:start` goal no longer exists in this pom). The first start downloads and provisions the server, so it needs the network and takes a while. If port 8080 is already in use, stop the process that holds it (`lsof -nP -iTCP:8080 -sTCP:LISTEN`).
 
 Use `clean`, so classes compiled earlier without `-parameters` do not stay in `target`. In the console, look for `duck-clinic` under `Deployed`. If the "Deployed" list is empty, the first `SEVERE` block says why.
 
-The MCP endpoint is `http://localhost:8080/duck-clinic/mcp`. The Payara plugin sets the context root to `/duck-clinic`.
+The pages are at `http://localhost:8080/duck-clinic/`, the REST API at `http://localhost:8080/duck-clinic/api/owners` and so on, and the MCP endpoint at `http://localhost:8080/duck-clinic/api/mcp`. The Payara plugin sets the context root to `/duck-clinic`. Opening the MCP URL in a browser returns 405, because the endpoint only answers `POST`.
 
-Open Liberty (`mvn clean package liberty:run`) serves the application at the root, so the endpoint would be `http://localhost:8080/mcp`. Only Payara Micro was tested for this demo.
+Open Liberty (`mvn clean package liberty:run`) serves the application at the root, so the endpoint would be `http://localhost:8080/api/mcp`. Liberty was not tested for the MCP endpoint.
 
 ### Check the endpoint with curl
 
 ```
-curl -s http://localhost:8080/duck-clinic/mcp \
+curl -s http://localhost:8080/duck-clinic/api/mcp \
   -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
   -H 'MCP-Protocol-Version: 2026-07-28' -H 'Mcp-Method: tools/list' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}'
@@ -112,21 +114,21 @@ You should get four tools back.
 ### Try it with the MCP Inspector
 
 ```
-npx @modelcontextprotocol/inspector@latest --transport http --server-url http://localhost:8080/duck-clinic/mcp --protocol-era modern
+npx @modelcontextprotocol/inspector@latest --transport http --server-url http://localhost:8080/duck-clinic/api/mcp --protocol-era modern
 ```
 
 `--protocol-era modern` is required. The default era opens with the older handshake, and this server answers it with `-32020 Missing MCP-Protocol-Version header`.
 
 1. Call `find_owners` and note a duck id.
 2. Call `book_visit` with that `duckId`, a `date` of today or later, and a `reason`. A form with a "Yes, book this visit" checkbox appears.
-3. Accept it. The reply says "Booked visit N …". Check with `list_visits`, or in the REST API: `http://localhost:8080/duck-clinic/visits?duckId=<id>`.
+3. Accept it. The reply says "Booked visit N …". Check with `list_visits`, or in the REST API: `http://localhost:8080/duck-clinic/api/visits?duckId=<id>`.
 4. Repeat the booking for another date and decline. Nothing is written.
 5. Book the first date again. The server answers "already has a visit on …" without showing a form.
 
 ### Try it with Claude Code
 
 ```
-claude mcp add --scope user --transport http duck-clinic http://localhost:8080/duck-clinic/mcp
+claude mcp add --scope user --transport http duck-clinic http://localhost:8080/duck-clinic/api/mcp
 claude mcp list
 ```
 
@@ -143,17 +145,18 @@ Claude Code asks permission to use the tools, then shows the booking confirmatio
 The database is recreated each time the application starts. To remove a single test booking while it is running:
 
 ```
-curl -X DELETE http://localhost:8080/duck-clinic/visits/<visitId>
+curl -X DELETE http://localhost:8080/duck-clinic/api/visits/<visitId>
 ```
 
 ## What was tested
 
-- MCP Inspector against Payara Micro 7.2026.9: all four tools, including booking accepted and declined.
-- Claude Code: connects to the unauthenticated endpoint, calls the tools, and shows the confirmation. Booking accepted, declined (nothing written) and a duplicate date (refused) all behaved as described above.
-- Not tested: Open Liberty, WildFly, GlassFish, Claude Desktop, authentication.
+- MCP Inspector against Payara Micro 7.2026.9 (with the application at the root, before the `/api` change): all four tools, including booking accepted and declined.
+- `tools/list` with curl against Payara Server 7.2026.10 at `/duck-clinic/api/mcp`: four tools with the right hints. The Faces pages and the REST API also work there.
+- Claude Code (also before the `/api` change): connects to the unauthenticated endpoint, calls the tools, and shows the confirmation. Booking accepted, declined (nothing written) and a duplicate date (refused) all behaved as described above.
+- Not tested: Open Liberty, WildFly, GlassFish, Claude Desktop, authentication, and a booking through a client after the move to `/api` and Payara Server (only `tools/list` was repeated).
 
 ## Known issues
 
-- **The Faces pages return 404** (`/duck-clinic/`, `/duck-clinic/index.xhtml`). This also happens with the original code on Payara Micro and Open Liberty, so it has nothing to do with the MCP changes. The likely cause, untested, is that `@ApplicationPath("")` maps the REST application to every path and takes the `*.xhtml` requests away from the Faces servlet. Changing it to `@ApplicationPath("/api")` is the suggested test. That would move the REST paths and the MCP endpoint to `/duck-clinic/api/...`, and the Claude Code and Inspector URLs would have to change with it.
+- **A root-mapped JAX-RS application breaks the Faces pages.** [Confirmed on Payara Server 7.2026.10] With `@ApplicationPath("")` the pages (`/duck-clinic/`, `/duck-clinic/index.xhtml`) return 404, and without the application class, or with `@ApplicationPath("/api")`, they work. The `/*` mapping of the JAX-RS application beats the `*.xhtml` mapping of the Faces servlet. That is why the application uses `/api`. The original duck-clinic code, which has the root mapping, showed the same 404 on Payara Micro. Why Open Liberty is said to work with it is not known.
 - **No unauthenticated hardening.** Run the demo on localhost only.
 - **Vets are only recorded as text** in the visit description, because the existing `Visit` entity has no vet field.
