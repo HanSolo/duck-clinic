@@ -7,7 +7,7 @@
     <ui:define name="content">
         <h1>Visits#{visitBean.duck != null ? ' for '.concat(visitBean.duck.name) : ''}</h1>
 
-        <h:link outcome="/owners/list" styleClass="back-link">← Back to Owners</h:link>
+        <h:link outcome="/owners/list" styleClass="back-link" value="← Back to Owners"/>
 
         <div class="detail-card" rendered="#{visitBean.duck != null}">
             <table class="detail-table">
@@ -31,7 +31,7 @@
                 </h:form>
             </h:column>
         </h:dataTable>
-        <p class="empty-msg" rendered="#{empty visitBean.visits}">No visits recorded yet.</p>
+        <h:panelGroup layout="block" styleClass="empty-msg" rendered="#{empty visitBean.visits}">No visits recorded yet.</h:panelGroup>
 
         <div class="form-section">
             <h2>Add Visit</h2>

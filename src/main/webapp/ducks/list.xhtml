@@ -14,7 +14,7 @@
     <ui:define name="content">
         <h1>Ducks#{duckBean.selectedOwnerId != null ? ' for Owner' : ''}</h1>
 
-        <h:link outcome="/owners/list" styleClass="back-link" rendered="#{duckBean.selectedOwnerId != null}">← Back to Owners</h:link>
+        <h:link outcome="/owners/list" styleClass="back-link" rendered="#{duckBean.selectedOwnerId != null}" value="← Back to Owners"/>
 
         <h:dataTable value="#{duckBean.ducks}" var="d" styleClass="table" headerClass="table-header"
                      rowClasses="row-even,row-odd" rendered="#{not empty duckBean.ducks}">
@@ -28,14 +28,14 @@
                     <h:commandButton value="Edit" action="#{duckBean.prepareEdit(d.id)}" styleClass="btn btn-sm"/>
                     <h:commandButton value="Delete" action="#{duckBean.delete(d.id)}" styleClass="btn btn-danger btn-sm"
                                      onclick="return confirm('Delete #{d.name}?')"/>
-                    <h:link outcome="/visits/list" styleClass="btn btn-sm btn-info">
-                        <f:param name="duckId" value="#{d.id}"/>Visits
-                    </h:link>
+                    <h:link outcome="/visits/list" styleClass="btn btn-sm btn-info" value="Visits">
+                    <f:param name="duckId" value="#{d.id}"/>
+                </h:link>
                 </h:form>
             </h:column>
         </h:dataTable>
 
-        <p class="empty-msg" rendered="#{empty duckBean.ducks}">No ducks found.</p>
+        <h:panelGroup layout="block" styleClass="empty-msg" rendered="#{empty duckBean.ducks}">No ducks found.</h:panelGroup>
 
         <div id="duck-form" class="form-section">
             <h2>#{duckBean.duck.id == null ? 'Add New Duck' : 'Edit Duck'}</h2>

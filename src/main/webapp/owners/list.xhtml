@@ -18,9 +18,8 @@
         <h:dataTable value="#{ownerBean.owners}" var="o" styleClass="table" headerClass="table-header" rowClasses="row-even,row-odd" rendered="#{not empty ownerBean.owners}">
             <h:column>
                 <f:facet name="header">Name</f:facet>
-                <h:link outcome="/owners/detail">
+                <h:link outcome="/owners/detail" value="#{o.fullName}">
                     <f:param name="ownerId" value="#{o.id}"/>
-                    #{o.fullName}
                 </h:link>
             </h:column>
             <h:column><f:facet name="header">Address</f:facet>#{o.address}</h:column>
@@ -41,7 +40,7 @@
             </h:column>
         </h:dataTable>
 
-        <p class="empty-msg" rendered="#{empty ownerBean.owners}">No owners found.</p>
+        <h:panelGroup layout="block" styleClass="empty-msg" rendered="#{empty ownerBean.owners}">No owners found.</h:panelGroup>
 
         <div id="owner-form" class="form-section">
             <h2>#{ownerBean.owner.id == null ? 'Add New Owner' : 'Edit Owner'}</h2>

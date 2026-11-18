@@ -8,8 +8,8 @@
             <h1>Welcome to the Jakarta EE Duck Clinic</h1>
             <p>A full-featured duck clinic application built exclusively with Jakarta EE 11 standard APIs.</p>
             <div class="hero-links">
-                <h:link outcome="/owners/list" styleClass="btn btn-primary">Find Owners</h:link>
-                <h:link outcome="/vets/list"   styleClass="btn btn-secondary">Our Vets</h:link>
+                <h:link outcome="/owners/list" styleClass="btn btn-primary" value="Find Owners"/>
+                <h:link outcome="/vets/list"   styleClass="btn btn-secondary" value="Our Vets"/>
             </div>
         </div>
 
@@ -17,17 +17,17 @@
             <div class="card">
                 <h2>🦆 Owners</h2>
                 <p>Manage duck owners, search by last name, and view their ducks.</p>
-                <h:link outcome="/owners/list" styleClass="btn btn-sm">View Owners →</h:link>
+                <h:link outcome="/owners/list" styleClass="btn btn-sm" value="View Owners →"/>
             </div>
             <div class="card">
                 <h2>🐥 Ducks</h2>
                 <p>Track ducks, their types, and visit history.</p>
-                <h:link outcome="/ducks/list" styleClass="btn btn-sm">View Ducks →</h:link>
+                <h:link outcome="/ducks/list" styleClass="btn btn-sm" value="View Ducks →"/>
             </div>
             <div class="card">
                 <h2>👨‍⚕️ Vets</h2>
                 <p>Browse our veterinarians and their specialties.</p>
-                <h:link outcome="/vets/list" styleClass="btn btn-sm">View Vets →</h:link>
+                <h:link outcome="/vets/list" styleClass="btn btn-sm" value="View Vets →"/>
             </div>
         </div>
     </ui:define>
