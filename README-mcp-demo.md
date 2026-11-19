@@ -152,11 +152,12 @@ curl -X DELETE http://localhost:8080/duck-clinic/api/visits/<visitId>
 
 - MCP Inspector against Payara Micro 7.2026.9 (with the application at the root, before the `/api` change): all four tools, including booking accepted and declined.
 - `tools/list` with curl against Payara Server 7.2026.10 at `/duck-clinic/api/mcp`: four tools with the right hints. The Faces pages and the REST API also work there.
-- Claude Code (also before the `/api` change): connects to the unauthenticated endpoint, calls the tools, and shows the confirmation. Booking accepted, declined (nothing written) and a duplicate date (refused) all behaved as described above.
-- Not tested: Open Liberty, WildFly, GlassFish, Claude Desktop, authentication, and a booking through a client after the move to `/api` and Payara Server (only `tools/list` was repeated).
+- Claude Code: connects to the unauthenticated endpoint, calls the tools, and shows the confirmation. Booking accepted, declined (nothing written) and a duplicate date (refused) all behaved as described above. Repeated after the move to `/api` on Payara Server 7.2026.10 at `/duck-clinic/api/mcp`: booking works as before (reported by the tester).
+- Not tested: Open Liberty, WildFly, GlassFish, Claude Desktop and authentication.
 
 ## Known issues
 
 - **A root-mapped JAX-RS application breaks the Faces pages.** [Confirmed on Payara Server 7.2026.10] With `@ApplicationPath("")` the pages (`/duck-clinic/`, `/duck-clinic/index.xhtml`) return 404, and without the application class, or with `@ApplicationPath("/api")`, they work. The `/*` mapping of the JAX-RS application beats the `*.xhtml` mapping of the Faces servlet. That is why the application uses `/api`. The original duck-clinic code, which has the root mapping, showed the same 404 on Payara Micro. Why Open Liberty is said to work with it is not known.
+- **Harmless H2 warnings at startup on Payara Server.** Payara creates the persistence unit `duckClinicPU` itself against its default H2 datasource and runs the DuckDB-style `schema.sql` there, which gives an H2 `Syntax error ... nextval` and `Table "VETS" not found` (EclipseLink-4002). The application uses its own DuckDB factory from `EntityManagerFactoryProducer`, so nothing is affected and the deployment succeeds. The optional `quiet-startup/` patch (untested) removes them.
 - **No unauthenticated hardening.** Run the demo on localhost only.
 - **Vets are only recorded as text** in the visit description, because the existing `Visit` entity has no vet field.

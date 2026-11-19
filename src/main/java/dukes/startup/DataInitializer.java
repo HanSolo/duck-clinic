@@ -119,6 +119,33 @@ public class DataInitializer {
             Duck fethry = duck(em, "Fethry", LocalDate.of(2012, 6, 8), muscovy, carlos);
             em.persist(carlos);
 
+
+            // --- Demo data for DuckInsurance: the insured ducks are patients of the clinic too (names must match the insurer's) ---
+            LocalDate today = LocalDate.now();
+            DuckType cayuga   = persist(em, new DuckType("cayuga"));
+            DuckType mandarin = persist(em, new DuckType("mandarin"));
+
+            Owner anna = owner("Anna", "Keller", "Bahnhofstrasse 1", "Zurich", "4415551201");
+            Duck sirQuacksalot = duck(em, "Sir Quacksalot", today.minusYears(3).minusMonths(2), mallard, anna);
+            Duck duchess = duck(em, "Duchess", today.minusYears(1).minusMonths(4), cayuga, anna);
+            em.persist(anna);
+            Owner marcus = owner("Marcus", "Webb", "12 Canal Street", "Manchester", "4415551202");
+            Duck waddles = duck(em, "Waddles", today.minusYears(6), pekin, marcus);
+            em.persist(marcus);
+            Owner priya = owner("Priya", "Nair", "Westersingel 8", "Rotterdam", "3115551203");
+            Duck bill = duck(em, "Bill", today.minusYears(2).minusMonths(7), runner, priya);
+            em.persist(priya);
+            Owner tomas = owner("Tomas", "Alvarez", "Calle del Mar 5", "Valencia", "3415551204");
+            Duck donQuixote = duck(em, "Don Quixote", today.minusYears(9), muscovy, tomas);
+            em.persist(tomas);
+            Owner lena = owner("Lena", "Fischer", "Ringstrasse 3", "Vienna", "4315551205");
+            Duck ducky = duck(em, "Ducky McDuckface", today.minusMonths(7), mandarin, lena);
+            em.persist(lena);
+            Owner samuel = owner("Samuel", "Okafor", "Liffey Quay 9", "Dublin", "3535551206");
+            Duck admiral = duck(em, "Admiral Beak", today.minusYears(4), mallard, samuel);
+            Duck puddles = duck(em, "Puddles", today.minusYears(1), pekin, samuel);
+            em.persist(samuel);
+
             em.flush();
 
             addVisit(em, donald,  LocalDate.of(2023, 1, 1),  "Vaccination");
@@ -129,6 +156,16 @@ public class DataInitializer {
             addVisit(em, huey,    LocalDate.of(2023, 4, 12), "Foot injury");
             addVisit(em, della,   LocalDate.of(2023, 5, 1),  "Vaccination");
             addVisit(em, scrooge, LocalDate.of(2023, 5, 1),  "Annual check-up");
+
+
+            // Visits that make the insurer's vet-care claims plausible or not:
+            // Sir Quacksalot: hook claim 40 days ago, the clinic has the surgery (plausible)
+            addVisit(em, sirQuacksalot, today.minusDays(40), "Emergency surgery: fishing hook removed, X-ray of the crop");
+            addVisit(em, sirQuacksalot, today.minusDays(38), "Follow-up after surgery, stitches checked");
+            // Bill: bumblefoot claim 10 days ago, the clinic has the treatment (plausible)
+            addVisit(em, bill, today.minusDays(9), "Bumblefoot treatment, foot bath, bandage");
+            // Don Quixote: wing fracture claim 30 days ago, but the clinic only has an old check-up (suspicious)
+            addVisit(em, donQuixote, today.minusDays(420), "Annual check-up, all fine");
 
             em.getTransaction().commit();
         } catch (Exception e) {

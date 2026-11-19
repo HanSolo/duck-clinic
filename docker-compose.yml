@@ -1,0 +1,19 @@
+services:
+  duck-clinic:
+    build:
+      context: .
+      args:
+        PAYARA_VERSION: "7.2026.10"
+    image: duck-clinic:latest
+    container_name: duck-clinic
+    ports:
+      # Bound to localhost only: the MCP endpoint has no authentication
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped
+    healthcheck:
+      # Opens a TCP connection to the HTTP port (no curl needed in the image)
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 90s
