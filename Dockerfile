@@ -19,6 +19,10 @@ RUN apt-get update \
 # Prints the Maven and Java versions: the Java line should say Zulu
 RUN mvn -v
 
+# The MCP client library of the referral agent, vendored until it is on Maven Central: install it into the local Maven repository first
+COPY third-party third-party
+RUN mvn -q -B -f third-party/mcp-jakarta-client/pom.xml install -Dmaven.test.skip=true
+
 # Resolve dependencies first so that source changes do not re-download them
 COPY pom.xml .
 RUN mvn -B -q dependency:resolve

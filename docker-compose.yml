@@ -9,6 +9,15 @@ services:
     ports:
       # Bound to localhost only: the MCP endpoint has no authentication
       - "127.0.0.1:8080:8080"
+    # Model settings of the agent (LLM_BASE_URL, LLM_MODEL), the same names as in DuckInsurance. Needs Docker Compose 2.24 or newer for 'required: false'.
+    env_file:
+      - path: llm.env
+        required: false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # reach Ollama and the therapy clinic on the host (needed on Linux, harmless elsewhere)
+    environment:
+      # The therapy clinic's agent (Quarkus, MCP on host port 8082)
+      THERAPY_MCP_URL: http://host.docker.internal:8082/mcp
     restart: unless-stopped
     healthcheck:
       # Opens a TCP connection to the HTTP port (no curl needed in the image)
