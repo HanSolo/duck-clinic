@@ -106,7 +106,8 @@ public class ReferralAgent {
     @HandleException
     void fallBack(RuntimeException e, ReferralRequest request) {
         LOG.log(Level.WARNING, "Referral agent failed for " + request.referralId(), e);
-        log.say(request.referralId(), "Vet", "ERROR", "The referral agent failed (" + e.getMessage() + "). Nothing was sent.");
+        Throwable root = e; while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+        log.say(request.referralId(), "Vet", "ERROR", "The referral agent failed (" + e.getMessage() + (root == e ? "" : "; cause: " + root.getClass().getSimpleName() + ": " + root.getMessage()) + "). The environment says LLM_BASE_URL=" + Settings.get("LLM_BASE_URL", "(not set)") + ", LLM_MODEL=" + Settings.get("LLM_MODEL", "(not set)") + ", LLM_PROVIDER=" + Settings.get("LLM_PROVIDER", "(not set)") + ". Nothing was sent.");
         if (referrals.get(request.referralId()).isEmpty()) referrals.save(new Referral(request.referralId(), request.duckId(), "duck " + request.duckId(), "", "", 0, null, "FAILED", String.valueOf(e.getMessage())));
         throw e;
     }
