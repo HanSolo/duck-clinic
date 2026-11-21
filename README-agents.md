@@ -24,7 +24,7 @@ Three applications, three agents, one referral id (REF-0001) carried through eve
 ## Run it
 
 1. `llm.env` in each project (copy `llm.env.example`): the same model everywhere, default `qwen3.8:27b` on the local Ollama.
-2. Start all three: `docker compose up --build` in each folder. The DuckClinic needs `third-party/` (vendored MCP client), the Dockerfile installs it. Without Docker: `mvn -f third-party/mcp-jakarta-client/pom.xml install -Dmaven.test.skip=true`, then `mvn clean package payara-server:start`.
+2. Start all three: `docker compose up --build` in each folder. The insurer and the DuckClinic take the MCP client `eu.hansolo.mcp:mcp-jakarta-client:0.3.0` from Maven Central. Without Docker: `mvn clean package payara-server:start`.
 3. Sign in to DuckInsurance as `adjuster/adjuster`, open **Agents**.
 
 Settings: `DUCKCLINIC_REST_URL`, `PHYSIOCLINIC_REST_URL`, `AGENT_SECRET` (insurer, compose.yaml); `THERAPY_MCP_URL` (clinic); `INSURER_MCP_URL`, `DUCKCLINIC_MCP_URL`, `AGENT_SECRET`, `LLM_*` (therapy clinic).

@@ -37,13 +37,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- MCP client of the referral agent (it calls the therapy clinic). Vendored in third-party/ until it is on Maven Central; install it first:
-             mvn -f third-party/mcp-jakarta-client/pom.xml install -Dmaven.test.skip=true
+        <!-- MCP client of the referral agent (it calls the therapy clinic), from Maven Central.
              The server provides JSON-P, so keep it out of the WAR. -->
         <dependency>
             <groupId>eu.hansolo.mcp</groupId>
             <artifactId>mcp-jakarta-client</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>0.3.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>jakarta.json</groupId>
