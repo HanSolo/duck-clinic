@@ -43,6 +43,21 @@ public class TherapyClient {
         }
     }
 
+    /** Asks the therapy clinic's agent to cancel a scheduled referral. The therapy clinic cancels the booked sessions, has the insurer release the coverage and reports CANCELLED back. */
+    public String cancel(String referralId, String reason) {
+        JsonObject arguments = Json.createObjectBuilder().add("referralId", referralId).add("reason", reason).build();
+        try {
+            McpClient client = McpClient.builder(endpoint()).clientInfo("duckclinic-referral-agent", "1.0").timeout(Duration.ofSeconds(60)).build();
+            ToolResult result = client.callTool("cancel_referral", arguments);
+            JsonObject data = data(result);
+            return data.getString("message", data.getString("status", "CANCELLED"));
+        } catch (TherapyUnavailableException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw new TherapyUnavailableException("The physical therapy clinic is not reachable at " + endpoint() + ": " + e.getMessage(), e);
+        }
+    }
+
     /** Servers send the data as structured content, or only as JSON text in the first content block (Quarkus MCP server). */
     private static JsonObject data(ToolResult result) {
         String text = "";
@@ -52,7 +67,7 @@ public class TherapyClient {
                 break;
             }
         }
-        if (result.isError()) throw new TherapyUnavailableException("The therapy clinic refused the referral: " + text, null);
+        if (result.isError()) throw new TherapyUnavailableException("The therapy clinic refused the request: " + text, null);
         if (result.structuredContent() != null) return result.structuredContent();
         try {
             return Json.createReader(new StringReader(text)).readObject();

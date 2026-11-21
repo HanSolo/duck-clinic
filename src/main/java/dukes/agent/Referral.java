@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 /**
  * A referral of a duck to the physical therapy clinic, as the clinic sees it.
- * status: DECLINED (the agent found no reason), SENT, PLANNING, SCHEDULED, NOT_COVERED, REJECTED, IN_TREATMENT, COMPLETED, FAILED (the therapy clinic could not be reached).
+ * status: DECLINED (the agent found no reason), SENT, PLANNING, SCHEDULED, NOT_COVERED, REJECTED, IN_TREATMENT, COMPLETED, CANCELLED (the referral was cancelled after it was scheduled), FAILED (the therapy clinic could not be reached).
  */
 public class Referral {
     private final String        id;
@@ -52,6 +52,6 @@ public class Referral {
     /** A referral that still needs attention: a new one for the same duck is not allowed. */
     public boolean isOpen() {
         String s = getStatus();
-        return !(s.equals("DECLINED") || s.equals("COMPLETED") || s.equals("NOT_COVERED") || s.equals("REJECTED") || s.equals("FAILED"));
+        return !(s.equals("DECLINED") || s.equals("COMPLETED") || s.equals("NOT_COVERED") || s.equals("REJECTED") || s.equals("FAILED") || s.equals("CANCELLED"));
     }
 }

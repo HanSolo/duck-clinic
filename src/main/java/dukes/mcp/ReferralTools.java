@@ -25,7 +25,7 @@ import java.util.Set;
  */
 @ApplicationScoped
 public class ReferralTools {
-    private static final Set<String> STATUSES = Set.of("PLANNING", "SCHEDULED", "NOT_COVERED", "REJECTED", "IN_TREATMENT", "COMPLETED");
+    private static final Set<String> STATUSES = Set.of("PLANNING", "SCHEDULED", "NOT_COVERED", "REJECTED", "IN_TREATMENT", "COMPLETED", "CANCELLED");
 
     private ReferralStore    referrals;
     private AgentLog         log;
@@ -76,8 +76,8 @@ public class ReferralTools {
         return Elicitation.form(question).bool("confirm", p -> p.title("Yes, release the document").required().defaultValue(true));
     }
 
-    @McpTool(description = "The therapy clinic's agent tells how a referral is going: PLANNING, SCHEDULED, NOT_COVERED, REJECTED, IN_TREATMENT or COMPLETED, with a message for the vet.", destructiveHint = McpTool.Hint.FALSE)
-    public Ack report_referral_status(@McpParam(description = "Referral id, like REF-0001") String referralId, @McpParam(description = "PLANNING, SCHEDULED, NOT_COVERED, REJECTED, IN_TREATMENT or COMPLETED") String status, @McpParam(description = "Message for the vet, up to 1000 characters") String message) {
+    @McpTool(description = "The therapy clinic's agent tells how a referral is going: PLANNING, SCHEDULED, NOT_COVERED, REJECTED, IN_TREATMENT, COMPLETED or CANCELLED, with a message for the vet.", destructiveHint = McpTool.Hint.FALSE)
+    public Ack report_referral_status(@McpParam(description = "Referral id, like REF-0001") String referralId, @McpParam(description = "PLANNING, SCHEDULED, NOT_COVERED, REJECTED, IN_TREATMENT, COMPLETED or CANCELLED") String status, @McpParam(description = "Message for the vet, up to 1000 characters") String message) {
         Referral referral = referrals.get(referralId).orElseThrow(() -> new ToolExecutionException("This clinic made no referral " + referralId));
         String clean = status == null ? "" : status.trim().toUpperCase();
         if (!STATUSES.contains(clean)) throw new ToolExecutionException("status must be one of " + STATUSES);

@@ -71,6 +71,7 @@ public class ReferralAgent {
                 %s
 
                 A vet asks whether to refer this duck to the Duck Physical Therapy Clinic.
+                The owner has given consent to the referral and to sharing the data. The code checked this before asking you.
                 Duck: %s (%s), born %s, owner %s from %s.
                 Visits of the last %d days, newest first:
                 %s

@@ -28,6 +28,8 @@ public class ReferralService {
     private ReferralStore            referrals;
     @Inject
     private AgentLog                 log;
+    @Inject
+    private TherapyClient            therapy;
 
 
     /** @return the referral id; the agent's work shows up in the log and, when it is done, as a referral in the store */
@@ -48,5 +50,26 @@ public class ReferralService {
             }
         });
         return id;
+    }
+
+    /**
+     * The vet cancels a scheduled referral. Only a referral that is scheduled or in treatment can be cancelled. The therapy clinic's agent does the rest: it cancels the booked sessions,
+     * has the insurer release the coverage that was reserved for them and reports CANCELLED back to this clinic.
+     */
+    public String cancel(String referralId, String reason) {
+        Referral referral = referrals.get(referralId).orElseThrow(() -> new IllegalArgumentException("This clinic made no referral " + referralId));
+        String   status   = referral.getStatus();
+        if (!(status.equals("SCHEDULED") || status.equals("IN_TREATMENT"))) throw new IllegalStateException("Referral " + referralId + " is " + status + ", only a scheduled referral can be cancelled.");
+        String why = reason == null || reason.isBlank() ? "the owner asked to stop the treatment" : reason.strip();
+        log.add(referralId, "Vet", AgentLog.AGENT, "REQUEST", "Please cancel the physiotherapy of " + referral.getDuckName() + ": " + why + ".");
+        log.say(referralId, "Therapy Agent", "REQUEST", "Please cancel referral " + referralId + " (" + why + "). Sessions that are done stay billed, the booked ones can go.");
+        try {
+            String answer = therapy.cancel(referralId, why);
+            log.say(referralId, null, "THOUGHT", "The therapy clinic answered: " + answer);
+            return answer;
+        } catch (RuntimeException e) {
+            log.say(referralId, null, "ERROR", "The cancellation could not be handed over: " + e.getMessage());
+            throw new IllegalStateException(e.getMessage(), e);
+        }
     }
 }

@@ -12,6 +12,8 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -35,6 +37,20 @@ public class ReferralResource {
         try {
             String id = service.start(body.getString("ownerLastName", ""), body.getString("duckName", ""), body.getBoolean("ownerConsent", false));
             return Response.accepted(Json.createObjectBuilder().add("referralId", id).add("message", "The clinic agent is looking at the duck. Follow it in /agent/log.").build()).build();
+        } catch (IllegalArgumentException e) {
+            return error(Response.Status.NOT_FOUND, e.getMessage());
+        } catch (IllegalStateException e) {
+            return error(Response.Status.CONFLICT, e.getMessage());
+        }
+    }
+
+    /** Cancels a scheduled referral. No body is needed, the reason is optional: POST /referrals/REF-0001/cancel?reason=owner%20moved */
+    @POST
+    @Path("/{id}/cancel")
+    @Consumes(MediaType.WILDCARD)
+    public Response cancel(@PathParam("id") String id, @QueryParam("reason") String reason) {
+        try {
+            return Response.ok(Json.createObjectBuilder().add("referralId", id).add("message", service.cancel(id, reason)).build()).build();
         } catch (IllegalArgumentException e) {
             return error(Response.Status.NOT_FOUND, e.getMessage());
         } catch (IllegalStateException e) {
