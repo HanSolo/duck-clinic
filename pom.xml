@@ -26,7 +26,33 @@
         <dependency>
             <groupId>eu.hansolo.mcp</groupId>
             <artifactId>mcp-jakarta</artifactId>
-            <version>0.9.0</version>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!-- Draft API (milestone 1) for the referral agent; the agent runtime is part of Payara Community 7.2026.8 and later -->
+        <dependency>
+            <groupId>jakarta.agentic-ai</groupId>
+            <artifactId>jakarta.agentic-ai-api</artifactId>
+            <version>1.0.0-M1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- MCP client of the referral agent (it calls the therapy clinic), from Maven Central.
+             The server provides JSON-P, so keep it out of the WAR. -->
+        <dependency>
+            <groupId>eu.hansolo.mcp</groupId>
+            <artifactId>mcp-jakarta-client</artifactId>
+            <version>0.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.json</groupId>
+                    <artifactId>jakarta.json-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.parsson</groupId>
+                    <artifactId>parsson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- DuckDB JDBC driver – packaged into the WAR, provides java.sql.Driver -->

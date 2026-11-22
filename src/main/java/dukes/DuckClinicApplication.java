@@ -1,7 +1,9 @@
 package dukes;
 
+import dukes.rest.AgentLogResource;
 import dukes.rest.DuckResource;
 import dukes.rest.OwnerResource;
+import dukes.rest.ReferralResource;
 import dukes.rest.VetResource;
 import dukes.rest.VisitResource;
 import eu.hansolo.mcp.rest.McpResource;
@@ -15,6 +17,6 @@ public class DuckClinicApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(OwnerResource.class, DuckResource.class, VisitResource.class, VetResource.class, McpResource.class);
+        return Set.of(OwnerResource.class, DuckResource.class, VisitResource.class, VetResource.class, ReferralResource.class, AgentLogResource.class, McpResource.class);
     }
 }
