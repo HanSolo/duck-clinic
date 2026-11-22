@@ -26,7 +26,7 @@
         <dependency>
             <groupId>eu.hansolo.mcp</groupId>
             <artifactId>mcp-jakarta</artifactId>
-            <version>0.9.0</version>
+            <version>1.0.0</version>
         </dependency>
 
         <!-- Draft API (milestone 1) for the referral agent; the agent runtime is part of Payara Community 7.2026.8 and later -->
