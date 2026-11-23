@@ -21,7 +21,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,8 +92,8 @@ public class ClinicTools {
      * Booking writes data, so the user is asked first (multi round-trip). The request state is signed over the arguments, so a retry that changes the duck, date, vet or reason after the user said yes is refused.
      */
     @McpTool(description = "Books a visit for a duck on a date, after the user confirms. Requires a client that can ask the user (elicitation).", readOnlyHint = McpTool.Hint.FALSE, destructiveHint = McpTool.Hint.FALSE, idempotentHint = McpTool.Hint.FALSE)
-    public ToolResult book_visit(@McpParam(description = "Duck id from find_owners") long duckId, @McpParam(description = "Date as yyyy-MM-dd, today or later") String date, @McpParam(description = "Reason for the visit, up to 800 characters") String reason, @McpParam(description = "Vet id from list_vets (optional)") Optional<Long> vetId, ToolCall call) {
-        LocalDate day = parseDate(date);
+    public ToolResult book_visit(@McpParam(description = "Duck id from find_owners") long duckId, @McpParam(description = "Date as yyyy-MM-dd, today or later") LocalDate date, @McpParam(description = "Reason for the visit, up to 800 characters") String reason, @McpParam(description = "Vet id from list_vets (optional)") Optional<Long> vetId, ToolCall call) {
+        LocalDate day = date;
         if (day.isBefore(LocalDate.now())) {
             throw new ToolExecutionException("date must be today or later, got " + day);
         }
@@ -136,14 +135,6 @@ public class ClinicTools {
 
     private static Elicitation.Form confirmation(String summary) {
         return Elicitation.form(summary).bool("confirm", p -> p.title("Yes, book this visit").required().defaultValue(true));
-    }
-
-    private static LocalDate parseDate(String date) {
-        try {
-            return LocalDate.parse(date.trim());
-        } catch (DateTimeParseException e) {
-            throw new ToolExecutionException("date must look like 2026-12-01, got '" + date + "'");
-        }
     }
 
     private static DuckView view(Duck duck) {

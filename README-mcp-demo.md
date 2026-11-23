@@ -3,7 +3,7 @@
 This demo adds an MCP server to the Jakarta EE Duck Clinic, so an AI client can look up owners, ducks and vets and book a visit. Booking asks the user to confirm first.
 
 - Application: [duck-clinic](https://github.com/ivargrimstad/duck-clinic), a Jakarta EE port of the Spring PetClinic with ducks, on DuckDB.
-- Library: `eu.hansolo.mcp:mcp-jakarta:0.9.0` (jakarta-mcp-server, on Maven Central).
+- Library: `eu.hansolo.mcp:mcp-jakarta:1.1.0` (jakarta-mcp-server, on Maven Central).
 - Protocol: MCP 2026-07-28, stateless, Streamable HTTP only. There is no `initialize` handshake and no session.
 - Status: unauthenticated and meant for localhost only. Authentication (OAuth) is not part of this demo.
 
@@ -42,7 +42,7 @@ The library dependency:
 <dependency>
     <groupId>eu.hansolo.mcp</groupId>
     <artifactId>mcp-jakarta</artifactId>
-    <version>0.9.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
