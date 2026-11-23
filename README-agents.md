@@ -23,7 +23,7 @@ Three applications, three agents, one referral id (REF-0001) carried through eve
 
 ## Run it
 
-1. `llm.env` in each project (copy `llm.env.example`): the same model everywhere, default `qwen3.8:27b` on the local Ollama. For Claude, use option B of `llm.env.example` in all three projects: `LLM_PROVIDER=anthropic`, `LLM_BASE_URL=https://api.anthropic.com`, `LLM_MODEL` and `LLM_API_KEY`.
+1. `llm.env` in each project (copy `llm.env.example`): the same model everywhere, default `qwen3.8:27b` on the local Ollama. For Claude use option B of `llm.env.example` in all three projects (`LLM_PROVIDER=anthropic`), for an OpenAI-format service option C (`LLM_PROVIDER=openai`), each with `LLM_BASE_URL`, `LLM_MODEL` and `LLM_API_KEY`.
 2. Start all three: `docker compose up --build` in each folder. The insurer and the DuckClinic take the MCP client `eu.hansolo.mcp:mcp-jakarta-client:0.3.0` from Maven Central. Without Docker: `mvn clean package payara-server:start`.
 3. Sign in to DuckInsurance as `adjuster/adjuster`, open **Agents**.
 
@@ -36,6 +36,6 @@ Settings: `DUCKCLINIC_REST_URL`, `PHYSIOCLINIC_REST_URL`, `AGENT_SECRET` (insure
 - The insurer's tools accept a shared secret (`clinic-agent:SECRET`, `therapy-agent:SECRET`). The clinics' MCP endpoints have no authentication. Demo only.
 - Multi round-trip requests (`input_required`) are used for the two questions above. A caller that declares no elicitation capability gets the status `NEEDS_INFO` from the insurer instead and may call again with the argument `referralDocument`; the clinic refuses such a caller. Long-running work (planning) uses a status tool plus a callback, not MCP Tasks.
 - The answers to the questions are given by code (an input handler in the agent's MCP client), not by a person.
-- The therapy clinic is Quarkus, which has no runtime for the draft Jakarta Agentic AI API. Its agent has the same steps as plain methods and its own small client (Ollama's native chat API, or the Anthropic Messages API with `LLM_PROVIDER=anthropic`).
+- The therapy clinic is Quarkus, which has no runtime for the draft Jakarta Agentic AI API. Its agent has the same steps as plain methods and its own small client (Ollama's native chat API, the Anthropic Messages API with `LLM_PROVIDER=anthropic`, or the OpenAI Chat Completions format with `LLM_PROVIDER=openai`).
 - A completed session may be marked before its start time (demo shortcut).
 - Nothing in this change was compiled against the real libraries or run against a real model. See HANDOVER-agents.md.
