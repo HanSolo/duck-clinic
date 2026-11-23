@@ -38,4 +38,4 @@ The data is reset at every start, and port 8080 is bound to `127.0.0.1` only. Se
 
 ## Agent-to-agent demo
 
-This application has an agent that takes part in a referral across DuckClinic, the Duck Physical Therapy Clinic and DuckInsurance. The design, tools, policies and limits are in `README-agents.md` of the DuckInsurance project (copied here as `README-agents.md`). Model settings: copy `llm.env.example` to `llm.env`.
+This application has an agent that takes part in a referral across DuckClinic, the Duck Physical Therapy Clinic and DuckInsurance. The design, tools, policies and limits are in `README-agents.md` of the DuckInsurance project (copied here as `README-agents.md`). Model settings: copy `llm.env.example` to `llm.env`. It holds two options: a local Ollama (default) and Claude through the Anthropic API (`LLM_PROVIDER=anthropic`, `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`). The agent keeps injecting Payara's `LargeLanguageModel`; Payara 7.2026.10 has its own Anthropic backend, so switching is configuration only (see `META-INF/microprofile-config.properties`).
