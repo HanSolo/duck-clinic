@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *   <li>LLM_PROVIDER: {@code ollama} (default, Ollama's native /api/chat), {@code anthropic} or {@code claude} (Messages API /v1/messages),
  *       {@code openai} (Chat Completions /chat/completions: OpenAI, Groq, OpenRouter, Mistral, Ollama's /v1 and others).</li>
  *   <li>LLM_BASE_URL: the server. For openai it includes the version path, for example https://api.openai.com/v1.</li>
- *   <li>LLM_MODEL, LLM_API_KEY, LLM_MAX_TOKENS (anthropic: default 1024; openai: sent only if set, because newer OpenAI models reject max_tokens).</li>
+ *   <li>LLM_MODEL, LLM_API_KEY, LLM_MAX_TOKENS (anthropic: default 4096; openai: sent only if set, because newer OpenAI models reject max_tokens).</li>
  * </ul>
  * Stateless: every query is one user message, no conversation is kept between calls.
  */
@@ -39,6 +39,8 @@ import java.util.regex.Pattern;
 public class ConfiguredLlm implements LargeLanguageModel {
     private static final Pattern    PLACEHOLDER = Pattern.compile("\\{\\}");
     private static final Duration   TIMEOUT     = Duration.ofSeconds(240);
+    /** The same default as Payara's own Anthropic backend. 1024 was too small for thinking models (for example qwen3 on Ollama), which spend it before they answer. */
+    private static final int        ANTHROPIC_DEFAULT_MAX_TOKENS = 4096;
     private final        HttpClient http        = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
     private final        Jsonb      jsonb       = JsonbBuilder.create();
 
@@ -91,13 +93,22 @@ public class ConfiguredLlm implements LargeLanguageModel {
     }
 
     private String anthropic(final String prompt) {
-        final JsonObject body = Json.createObjectBuilder().add("model", model()).add("max_tokens", maxTokens() > 0 ? maxTokens() : 1024)
+        final JsonObject body = Json.createObjectBuilder().add("model", model()).add("max_tokens", maxTokens() > 0 ? maxTokens() : ANTHROPIC_DEFAULT_MAX_TOKENS)
                                     .add("messages", Json.createArrayBuilder().add(user(prompt))).build();
-        final JsonObject reply = post(baseUrl("https://api.anthropic.com") + "/v1/messages", body,
+        final JsonObject reply = post(withoutV1(baseUrl("https://api.anthropic.com")) + "/v1/messages", body,
                                       Json.createObjectBuilder().add("x-api-key", setting("LLM_API_KEY", "")).add("anthropic-version", "2023-06-01").build());
-        final StringBuilder text = new StringBuilder();
-        for (JsonValue block : reply.getJsonArray("content")) {
-            if ("text".equals(block.asJsonObject().getString("type", ""))) { text.append(block.asJsonObject().getString("text", "")); }
+        final StringBuilder text  = new StringBuilder();
+        final StringBuilder kinds = new StringBuilder();
+        final var           content = reply.containsKey("content") && !reply.isNull("content") ? reply.getJsonArray("content") : Json.createArrayBuilder().build();
+        for (JsonValue block : content) {
+            final String type = block.asJsonObject().getString("type", "?");
+            kinds.append(kinds.isEmpty() ? "" : ", ").append(type);
+            if ("text".equals(type)) { text.append(block.asJsonObject().getString("text", "")); }
+        }
+        if (text.toString().replaceAll("(?s)<think>.*?</think>", "").isBlank()) {
+            final String stop = reply.getString("stop_reason", "unknown");
+            throw new LLMException("The model returned no text (stop_reason " + stop + ", content blocks: " + (kinds.isEmpty() ? "none" : kinds) + ")."
+                                   + ("max_tokens".equals(stop) ? " The answer limit of " + (maxTokens() > 0 ? maxTokens() : ANTHROPIC_DEFAULT_MAX_TOKENS) + " tokens was used up, probably by the model's thinking: raise LLM_MAX_TOKENS, or for Ollama use LLM_PROVIDER=ollama, which switches thinking off." : ""));
         }
         return text(text.toString());
     }
@@ -162,9 +173,12 @@ public class ConfiguredLlm implements LargeLanguageModel {
 
     private String baseUrl(final String fallback) { return setting("LLM_BASE_URL", fallback).replaceAll("/+$", ""); }
 
+    /** A base URL left with /v1 from an openai setup would give /v1/v1/messages, so /v1 is dropped here. */
+    private static String withoutV1(final String url) { return url.replaceAll("/v1$", ""); }
+
     private String model() { return setting("LLM_MODEL", "qwen3.8:27b"); }
 
-    /** LLM_MAX_TOKENS, or 0 if not set (anthropic then uses 1024, openai sends no limit). */
+    /** LLM_MAX_TOKENS, or 0 if not set (anthropic then uses 4096, openai sends no limit). */
     private int maxTokens() { return Integer.parseInt(setting("LLM_MAX_TOKENS", "0")); }
 
     private static String setting(final String name, final String fallback) { return Settings.get(name, fallback); }
