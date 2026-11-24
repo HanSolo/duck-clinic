@@ -166,6 +166,11 @@ public class DataInitializer {
             addVisit(em, bill, today.minusDays(9), "Bumblefoot treatment, foot bath, bandage");
             // Don Quixote: wing fracture claim 30 days ago, but the clinic only has an old check-up (suspicious)
             addVisit(em, donQuixote, today.minusDays(420), "Annual check-up, all fine");
+            // Waddles: two arthritis claims 50 and 12 days ago, the clinic has both visits (repeat claims that are plausible)
+            addVisit(em, waddles, today.minusDays(50), "Arthritis flare in the left foot: X-ray, anti-inflammatory course");
+            addVisit(em, waddles, today.minusDays(12), "Arthritis follow-up: joint injection, foot examination");
+            // Admiral Beak and Puddles (owner Okafor): emergency surgery claims 7 and 5 days ago, the clinic has no record of either (suspicious)
+            // Sir Quacksalot: a second hook surgery claim 39 days ago, the clinic has only the one surgery above (paid twice?)
 
             em.getTransaction().commit();
         } catch (Exception e) {
