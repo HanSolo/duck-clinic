@@ -5,7 +5,9 @@
 ARG PAYARA_VERSION=7.2026.10
 
 # ---- Stage 1: build the WAR -------------------------------------------------
-FROM azul-zulu:21 AS build
+# The build stage runs once on the build machine's own platform: the WAR/JAR is the same for amd64 and arm64,
+# so a multi-platform image build does not compile (and download from Maven Central) twice, and arm64 is not emulated.
+FROM --platform=$BUILDPLATFORM azul-zulu:21 AS build
 WORKDIR /build
 
 # Maven is installed from the Apache archive, not with apt: the apt package
@@ -19,9 +21,13 @@ RUN apt-get update \
 # Prints the Maven and Java versions: the Java line should say Zulu
 RUN mvn -v
 
-# Resolve dependencies first so that source changes do not re-download them
+# Maven Central answers "429 Too Many Requests" when many builds download at once: retry up to 10 times, 10 s apart (Maven 3.9 reads MAVEN_ARGS)
+ENV MAVEN_ARGS="-Daether.connector.http.retryHandler.count=10 -Daether.connector.http.retryHandler.interval=10000"
+
+# Resolve dependencies and plugins first so that source changes do not re-download them
+# (go-offline also fetches the plugins, so the package step below needs nothing from the network)
 COPY pom.xml .
-RUN mvn -B -q dependency:resolve
+RUN mvn -B -q dependency:go-offline
 
 COPY src ./src
 RUN mvn -B -q -DskipTests clean package
